@@ -143,7 +143,7 @@ export async function runTask(task: Task) {
         continue
       }
 
-      await textarea.type(task.structure[await textarea.getAttribute("id")])
+      await textarea.type(task.structure[await textarea.getAttribute("id")], { timeout: 100000 })
     }
 
     for (const select of selects) {
