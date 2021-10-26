@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "sucrase-node src/index.ts",
     "transpile": "npx tsc",
-    "obfuscate": "javascript-obfuscator ./dist/js --output ./dist/obfuscated",
     "build": "pkg .",
-    "deploy": "yarn transpile && yarn obfuscate && yarn build"
+    "deploy": "yarn transpile && yarn build"
   },
   "devDependencies": {
     "@types/inquirer": "^8.1.3",
@@ -22,9 +21,10 @@
     "inquirer-fs-selector": "^1.5.0",
     "playwright": "^1.16.1"
   },
-  "bin": "dist/obfuscated/index.js",
+  "bin": "dist/js/index.js",
   "pkg": {
-    "scripts": "dist/obfuscated/**/*.js",
+    "targets": ["node14-win-x64"],
+    "scripts": "dist/js/**/*.js",
     "outputPath": "dist/build"
   }
 }
