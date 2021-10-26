@@ -22,7 +22,7 @@ interface Account {
   const { browser, page } = await login(
     accounts[0].email,
     accounts[0].password,
-    { headless: false }
+    { headless: false, slowMo: 250 }
   )
 
   await inquirer.prompt({

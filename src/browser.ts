@@ -7,8 +7,11 @@ export async function login(email: string, password: string, options: LaunchOpti
 
   await page.goto("https://olx.com.br")
   await page.click("text=Anunciar")
-  await page.type("input[type=\"email\"]", email)
-  await page.type("input[type=\"password\"]", password)
+  await page.fill("input[type=\"email\"]", email)
+  await page.fill("input[type=\"password\"]", password)
+  if (await (await page.$("input[type=\"email\"]")).getAttribute("value") != email) {
+    await page.fill("input[type=\"email\"]", email)
+  }
   await page.click("button[type=\"text\"]")
 
   return { browser, page }
