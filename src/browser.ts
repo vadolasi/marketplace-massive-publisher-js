@@ -55,17 +55,14 @@ export async function makeTasks(browser: Browser, page: Page) {
     }
   )
 
-  console.log(structure)
-
   for (const input of inputs) {
     const inputID = await input.getAttribute("id")
     const inputType = await input.getAttribute("type")
-    const inputValue = await input.getAttribute("value")
 
     if (inputType === "text") {
-      structure[inputID] = inputValue
+      structure[inputID] = await input.getAttribute("value")
     } else if (inputType === "checkbox" || inputType === "radio") {
-      structure[inputID] = Boolean(inputValue)
+      structure[inputID] = await input.isChecked()
     }
   }
 
@@ -122,11 +119,12 @@ export async function runTask(task: Task) {
     }
 
     for (const input of inputs) {
-      if (inputsList.includes(input)) {
+      const inputID = await input.getAttribute("id")
+
+      if (inputsList.includes(inputID)) {
         continue
       }
 
-      const inputID = await input.getAttribute("id")
       const inputType = await input.getAttribute("type")
 
       if (inputID === "price") {
@@ -134,27 +132,37 @@ export async function runTask(task: Task) {
       } else if (inputType === "text") {
         await input.type(task.structure[inputID])
       } else if (inputType === "checkbox" || inputType === "radio") {
-        await input.setChecked(task.structure[inputID])
+        if (task.structure[inputID] != null && task.structure[inputID] != undefined) {
+          await input.setChecked(task.structure[inputID])
+        }
       }
+
+      inputsList.push(inputID)
     }
 
     for (const textarea of textareas) {
-      if (inputsList.includes(textarea)) {
+      const textareaID = await textarea.getAttribute("id")
+
+      if (inputsList.includes(textareaID)) {
         continue
       }
 
-      await textarea.type(task.structure[await textarea.getAttribute("id")], { timeout: 100000 })
+      await textarea.type(task.structure[textareaID], { timeout: 100000 })
+
+      inputsList.push(textareaID)
     }
 
     for (const select of selects) {
-      if (inputsList.includes(select)) {
+      const selectID = await select.getAttribute("id")
+
+      if (inputsList.includes(selectID)) {
         continue
       }
 
       await select.selectOption({ label: task.structure[await select.getAttribute("id")] })
-    }
 
-    inputsList = [...inputs, ...textareas, ...selects]
+      inputsList.push(selectID)
+    }
   }
 
   for (const image of task.structure.images) {
