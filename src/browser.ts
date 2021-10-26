@@ -6,9 +6,7 @@ export async function login(email: string, password: string, options: LaunchOpti
   const page = await browser.newPage()
 
   await page.goto("https://olx.com.br")
-  await page.click(
-    "#gatsby-focus-wrapper > div:nth-child(2) > div.sc-gPEVay.edvRD > header > div.sc-bRBYWo.kSKrRG > div > a"
-  )
+  await page.click("text=Anunciar")
   await page.type("input[type=\"email\"]", email)
   await page.type("input[type=\"password\"]", password)
   await page.click("button[type=\"text\"]")
@@ -24,12 +22,47 @@ export async function makeTasks(browser: Browser, page: Page) {
 
   var structure: { [key: string]: any } = {}
 
+  structure.category = await page.$$eval(
+    "li.category__item.active > a", 
+    elements => {
+      if (elements.length === 0) {
+        return false
+      } else {
+        return elements[0].getAttribute("title")
+      }
+    }
+  )
+
+  structure.subcategory = await page.$$eval(
+    "li.subcategory__item.active > a",
+    elements => {
+      if (elements.length === 0) {
+        return false
+      } else {
+        return elements[0].getAttribute("title")
+      }
+    }
+  )
+
+  structure.grandsoncategory = await page.$$eval(
+    "li.grandsoncategory__item.active > a",
+    elements => {
+      if (elements.length === 0) {
+        return false
+      } else {
+        return elements[0].getAttribute("title")
+      }
+    }
+  )
+
+  console.log(structure)
+
   for (const input of inputs) {
     const inputID = await input.getAttribute("id")
     const inputType = await input.getAttribute("type")
     const inputValue = await input.getAttribute("value")
 
-    if (inputType === "text" || inputType === "hidden") {
+    if (inputType === "text") {
       structure[inputID] = inputValue
     } else if (inputType === "checkbox" || inputType === "radio") {
       structure[inputID] = Boolean(inputValue)
@@ -69,10 +102,13 @@ export async function runTask(task: Task) {
     { headless: false, slowMo: 250 }
   )
 
-  const category: string = task.structure.input_category
-
-  await page.click(`[id^="category_item-${category.slice(0, category.length - 2)}"]`)
-  await page.click(`#category_item-${category}`)
+  await page.click(`text=${task.structure.category}`)
+  if (task.structure.subcategory) {
+    await page.click(`text=${task.structure.subcategory}`)
+  }
+  if (task.structure.grandsoncategory) {
+    await page.click(`text=${task.structure.grandsoncategory}`)
+  }
 
   var inputsList = []
 
